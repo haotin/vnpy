@@ -4,7 +4,7 @@ import sys
 import ctypes
 import time
 from vtEngine import MainEngine
-from eventEngine import *
+from vnpy.event.eventEngine import *
 
 
 # ----------------------------------------------------------------------
@@ -43,7 +43,7 @@ def run(gateway, strategyName):
 
 
 if __name__ == '__main__':
-    run("CTP", "strategy_Sar_v1")
+    # run("CTP", "strategy_Sar_v1")
     # run("CTP", "strategy_TripleMa")
-    # run("CTP", "AtrRsistrategy")
+    run("CTP", "AtrRsistrategy")
 

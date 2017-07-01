@@ -710,7 +710,7 @@ class CtaEngine(object):
             if not strategy.inited or force == True:
                 self.callStrategyFunc(strategy, strategy.onInit,force)
                 #strategy.onInit(force=force)
-                #strategy.inited = True
+                strategy.inited = True
             else:
                 self.writeCtaLog(u'请勿重复初始化策略实例：%s' %name)
         else:

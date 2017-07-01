@@ -72,20 +72,20 @@ class MainWindow(QtGui.QMainWindow):
     def initMenu(self):
         """初始化菜单"""
         # 创建操作
-        connectCtpProdAction = QtGui.QAction(u'上海中期CTP', self)
-        connectCtpProdAction.triggered.connect(self.connectCtpProd)
-
-        connectCtpPostAction = QtGui.QAction(u'中期盘后CTP', self)
-        connectCtpPostAction.triggered.connect(self.connectCtpPost)
-
-        connectCtpTestAction = QtGui.QAction(u'光大CTP', self)
-        connectCtpTestAction.triggered.connect(self.connectCtpEBF)
-
-        connectCtpJRAction = QtGui.QAction(u'金瑞CTP', self)
-        connectCtpJRAction.triggered.connect(self.connectCtpJR)
-
-        connectCtpJR2Action = QtGui.QAction(u'金瑞CTP2', self)
-        connectCtpJR2Action.triggered.connect(self.connectCtpJR2)
+        # connectCtpProdAction = QtGui.QAction(u'上海中期CTP', self)
+        # connectCtpProdAction.triggered.connect(self.connectCtpProd)
+        #
+        # connectCtpPostAction = QtGui.QAction(u'中期盘后CTP', self)
+        # connectCtpPostAction.triggered.connect(self.connectCtpPost)
+        #
+        # connectCtpTestAction = QtGui.QAction(u'光大CTP', self)
+        # connectCtpTestAction.triggered.connect(self.connectCtpEBF)
+        #
+        # connectCtpJRAction = QtGui.QAction(u'金瑞CTP', self)
+        # connectCtpJRAction.triggered.connect(self.connectCtpJR)
+        #
+        # connectCtpJR2Action = QtGui.QAction(u'金瑞CTP2', self)
+        # connectCtpJR2Action.triggered.connect(self.connectCtpJR2)
 
         connectCtpAction = QtGui.QAction(u'连接CTP', self)
         connectCtpAction.triggered.connect(self.connectCtp)
@@ -155,11 +155,11 @@ class MainWindow(QtGui.QMainWindow):
         
         # 设计为只显示存在的接口
         sysMenu = menubar.addMenu(u'系统')
-        sysMenu.addAction(connectCtpProdAction)
-        sysMenu.addAction(connectCtpPostAction)
-        sysMenu.addAction(connectCtpTestAction)
-        sysMenu.addAction(connectCtpJRAction)
-        sysMenu.addAction(connectCtpJR2Action)
+        # sysMenu.addAction(connectCtpProdAction)
+        # sysMenu.addAction(connectCtpPostAction)
+        # sysMenu.addAction(connectCtpTestAction)
+        # sysMenu.addAction(connectCtpJRAction)
+        # sysMenu.addAction(connectCtpJR2Action)
 
         sysMenu.addAction(connectCtpAction)
         #if 'LTS' in self.mainEngine.gatewayDict:
