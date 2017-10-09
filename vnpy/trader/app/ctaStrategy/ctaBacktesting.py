@@ -1231,6 +1231,8 @@ class BacktestingEngine(object):
             tick.bidVolume1 = int(float(row['bidVolume1']))
             tick.askPrice1 = float(row['askPrice1'])  # 叫卖价（价格高）
             tick.askVolume1 = int(float(row['askVolume1']))
+            
+            
 
             # 排除涨停/跌停的数据
             if (tick.bidPrice1 == float('1.79769E308') and tick.bidVolume1 == 0) \
@@ -1675,8 +1677,8 @@ class BacktestingEngine(object):
 
         for i in range(0, testdays):
             testday = self.dataStartDate + timedelta(days=i)
-            testday_monrning = testday.replace(hour=0, minute=0, second=0, microsecond=0)
-            testday_midnight = testday.replace(hour=23, minute=59, second=59, microsecond=999999)
+            testday_monrning = testday  #testday.replace(hour=0, minute=0, second=0, microsecond=0)
+            testday_midnight = testday + timedelta(days=1) #testday.replace(hour=23, minute=59, second=59, microsecond=999999)
 
             query_time = datetime.now()
             # 载入初始化需要用的数据
@@ -1739,7 +1741,7 @@ class BacktestingEngine(object):
         self.strategy.onStart()
         
     #----------------------------------------------------------------------
-    def sendOrder(self, vtSymbol, orderType, price, volume, strategy):
+    def sendOrder(self, vtSymbol, orderType, price, volume, strategy, priceType=PRICETYPE_LIMITPRICE):
         """发单"""
 
         self.writeCtaLog(u'{0},{1},{2}@{3}'.format(vtSymbol, orderType, price, volume))
@@ -1870,8 +1872,8 @@ class BacktestingEngine(object):
         # 遍历限价单字典中的所有限价单
         for orderID, order in self.workingLimitOrderDict.items():
             # 判断是否会成交
-            buyCross = order.direction == DIRECTION_LONG and order.price >= buyCrossPrice and vtSymbol == order.vtSymbol
-            sellCross = order.direction == DIRECTION_SHORT and order.price <= sellCrossPrice and vtSymbol == order.vtSymbol
+            buyCross = order.direction == DIRECTION_LONG and order.price >= buyCrossPrice and vtSymbol.lower() == order.vtSymbol.lower()
+            sellCross = order.direction == DIRECTION_SHORT and order.price <= sellCrossPrice and vtSymbol.lower() == order.vtSymbol.lower()
             
             # 如果发生了成交
             if buyCross or sellCross:
@@ -1941,8 +1943,8 @@ class BacktestingEngine(object):
         # 遍历停止单字典中的所有停止单
         for stopOrderID, so in self.workingStopOrderDict.items():
             # 判断是否会成交
-            buyCross = so.direction == DIRECTION_LONG and so.price <= buyCrossPrice and vtSymbol == so.vtSymbol
-            sellCross = so.direction == DIRECTION_SHORT and so.price >= sellCrossPrice and vtSymbol == so.vtSymbol
+            buyCross = so.direction == DIRECTION_LONG and so.price <= buyCrossPrice and vtSymbol.lower() == so.vtSymbol.lower()
+            sellCross = so.direction == DIRECTION_SHORT and so.price >= sellCrossPrice and vtSymbol.lower() == so.vtSymbol.lower()
             
             # 如果发生了成交
             if buyCross or sellCross:
@@ -2029,7 +2031,17 @@ class BacktestingEngine(object):
 
     def writeCtaError(self, content):
         """记录异常"""
-        self.output(content)
+        self.output(u'Error:{}'.format(content))
+        self.writeCtaLog(content)
+
+    def writeCtaWarning(self, content):
+        """记录告警"""
+        self.output(u'Warning:{}'.format(content))
+        self.writeCtaLog(content)
+
+    def writeCtaNotification(self,content):
+        """记录通知"""
+        self.output(u'Notify:{}'.format(content))
         self.writeCtaLog(content)
 
     #----------------------------------------------------------------------
@@ -2491,6 +2503,14 @@ class BacktestingEngine(object):
                 self.longPosition.append(trade)
                 del self.tradeDict[tradeid]
 
+            if trade.volume == EMPTY_INT:
+                self.writeCtaLog(u'{},dir:{},vtOrderID:{}tradeID:{}的volumn为{},删除'.format(trade.vtSymbol, trade.direction,trade.vtOrderID,trade.tradeID,trade.volume))
+                try:
+                    del self.tradeDict[tradeid]
+                except:
+                    pass
+                continue
+
             # cover trade，
             elif trade.direction == DIRECTION_LONG and trade.offset == OFFSET_CLOSE:
                 gId = trade.tradeID    # 交易组（多个平仓数为一组）
@@ -2645,7 +2665,7 @@ class BacktestingEngine(object):
 
             # sell trade
             elif trade.direction == DIRECTION_SHORT and trade.offset == OFFSET_CLOSE:
-                gId = trade.tradeID # 交易组（多个平仓数为一组）                                                                                                                                    s
+                gId = trade.tradeID  # 交易组（多个平仓数为一组）
                 gr = None           # 组合的交易结果
 
                 sellVolume = trade.volume
@@ -3385,9 +3405,9 @@ class TradingResult(object):
 
         self.turnover = (self.entryPrice + self.exitPrice) * size * abs(volume)  # 成交金额
         if fixcommission:
-            self.commission = fixcommission * self.volume
+            self.commission = fixcommission * abs(self.volume)
         else:
-            self.commission = self.turnover * rate  # 手续费成本
+            self.commission = abs(self.turnover * rate)  # 手续费成本
         self.slippage = slippage * 2 * size * abs(volume)  # 滑点成本
         self.pnl = ((self.exitPrice - self.entryPrice) * volume * size
                     - self.commission - self.slippage)  # 净盈亏
